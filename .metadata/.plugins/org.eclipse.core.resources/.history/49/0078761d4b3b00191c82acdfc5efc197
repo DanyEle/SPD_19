@@ -1,0 +1,5 @@
+#!/bin/bash
+AMOUNT_PROCESSES=$1
+echo "Running program with $AMOUNT_PROCESSES processes"
+mpicc token_ring.c -o ping_pong
+mpirun -np $AMOUNT_PROCESSES  ping_pong

@@ -1,0 +1,53 @@
+
+#include <mpi.h>
+#include <omp.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+int main(int argc, char ** argv)
+{
+	int my_rank;
+
+	int number_of_processes;
+
+
+	char * my_message_0_1 = "Hi Process 1. This is process 0 talking.";
+	char * my_message_1_0 = "Hi process 0. This is process 1 talking. ";
+
+	const int MAX_MESSAGE_SIZE = 100;
+	//buffer for receiving messages
+	char received_message[MAX_MESSAGE_SIZE];
+
+
+	MPI_Init(&argc, &argv);
+	//basic communicator
+	MPI_Comm_rank(MPI_COMM_WORLD, &my_rank);
+
+    int mpi_error_code = MPI_Comm_size(MPI_COMM_WORLD, &number_of_processes);
+
+    //rank 0 --> sender
+	if(my_rank == 0)
+	{
+
+	  //printf("Sending message from process %d to process %d\n", my_rank, 1);
+	  //send a message to process with rank 1 with a random tag.
+	  mpi_error_code = MPI_Send(my_message_0_1, strlen(my_message_0_1)+1,MPI_CHAR,1, 789, MPI_COMM_WORLD);
+	  //after sending, start receiving
+	  mpi_error_code = MPI_Recv(received_message, MAX_MESSAGE_SIZE, MPI_CHAR, 0, 789, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+	  printf("Received message at process %d is: %s\n", my_rank, received_message);
+
+	}
+
+	//rank 1 --> receiver
+	if(my_rank == 1)
+	{
+		mpi_error_code = MPI_Recv(received_message, MAX_MESSAGE_SIZE, MPI_CHAR, 0, 789, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+		printf("Received message at process %d is: %s\n", my_rank, received_message);
+	}
+
+	MPI_Finalize();
+
+	return 0;
+
+}

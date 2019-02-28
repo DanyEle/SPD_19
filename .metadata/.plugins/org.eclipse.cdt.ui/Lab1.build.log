@@ -1,0 +1,19 @@
+12:07:57 **** Incremental Build of configuration Debug for project Lab1 ****
+make all 
+Building file: ../src/ping_pong.c
+Invoking: GCC C Compiler
+mpicc -I/usr/include/mpi -O0 -g3 -Wall -c -fmessage-length=0 -MMD -MP -MF"src/ping_pong.d" -MT"src/ping_pong.o" -o "src/ping_pong.o" "../src/ping_pong.c"
+../src/ping_pong.c: In function ‘main’:
+../src/ping_pong.c:19:6: warning: variable ‘mpi_error_code’ set but not used [-Wunused-but-set-variable]
+  int mpi_error_code;
+      ^~~~~~~~~~~~~~
+Finished building: ../src/ping_pong.c
+ 
+Building target: Lab1
+Invoking: GCC C Linker
+mpicc  -o "Lab1"  ./src/ping_pong.o   
+Finished building target: Lab1
+ 
+
+12:07:57 Build Finished. 0 errors, 1 warnings. (took 115ms)
+

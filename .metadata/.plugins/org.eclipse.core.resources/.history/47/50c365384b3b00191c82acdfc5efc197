@@ -1,0 +1,6 @@
+#!/bin/bash
+AMOUNT_PROCESSES=$1
+FILE_NAME = token_ring
+echo "Running program with $AMOUNT_PROCESSES processes"
+mpicc "$FILE_NAME.c" -o token_ring
+mpirun -np $AMOUNT_PROCESSES  token_ring

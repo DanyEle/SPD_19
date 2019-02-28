@@ -1,0 +1,51 @@
+
+#include <mpi.h>
+#include <omp.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+//forward declarations
+int handle_communication(int my_rank, int number_processes, char * my_message);
+
+
+int main(int argc, char ** argv)
+{
+	int my_rank;
+
+	int number_processes;
+
+	char * my_message = "Message!";
+
+	const int MAX_MESSAGE_SIZE = 100;
+	//buffer for receiving messages
+
+	MPI_Init(&argc, &argv);
+	//basic communicator
+	MPI_Comm_rank(MPI_COMM_WORLD, &my_rank);
+
+    int mpi_error_code = MPI_Comm_size(MPI_COMM_WORLD, &number_processes);
+
+
+    mpi_error_code = handle_communication(my_rank, number_processes, my_message);
+
+
+    //send to the next process
+
+	MPI_Finalize();
+
+	return 0;
+
+}
+
+
+
+int handle_communication(int my_rank, int number_processes, char * my_message)
+{
+	char received_message[MAX_MESSAGE_SIZE];
+
+
+	printf("I am in process %d", my_rank);
+	return 0;
+
+}
