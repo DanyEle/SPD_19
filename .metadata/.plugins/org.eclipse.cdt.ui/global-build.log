@@ -1,21 +1,23 @@
-12:59:29 **** Incremental Build of configuration Debug for project Lab1_Token_Ring ****
+10:05:56 **** Incremental Build of configuration Debug for project Lab1_Array ****
 make all 
-make: Nothing to be done for 'all'.
-12:59:31 **** Incremental Build of configuration Debug for project Lab1_Token_Ring ****
-make all 
-make: Nothing to be done for 'all'.
-12:59:33 **** Incremental Build of configuration Debug for project Lab1_Token_Ring ****
-make all 
-make: Nothing to be done for 'all'.
-12:59:37 **** Incremental Build of configuration Debug for project Lab1_Token_Ring ****
-make all 
-make: Nothing to be done for 'all'.
-12:59:53 **** Incremental Build of configuration Debug for project Lab1_Token_Ring ****
-make all 
-make: Nothing to be done for 'all'.
-12:59:55 **** Incremental Build of configuration Debug for project Lab1_Token_Ring ****
-make all 
-make: Nothing to be done for 'all'.
-12:59:57 **** Incremental Build of configuration Debug for project Lab1_Token_Ring ****
-make all 
-make: Nothing to be done for 'all'.
+Building file: ../src/array.c
+Invoking: GCC C Compiler
+mpicc -I/usr/include/mpi -O0 -g3 -Wall -c -fmessage-length=0 -MMD -MP -MF"src/array.d" -MT"src/array.o" -o "src/array.o" "../src/array.c"
+../src/array.c: In function ‘main’:
+../src/array.c:26:9: warning: variable ‘mpi_error_code’ set but not used [-Wunused-but-set-variable]
+     int mpi_error_code = MPI_Comm_size(MPI_COMM_WORLD, &number_processes);
+         ^~~~~~~~~~~~~~
+../src/array.c: In function ‘handle_communication’:
+../src/array.c:54:6: warning: variable ‘mpi_error_code’ set but not used [-Wunused-but-set-variable]
+  int mpi_error_code;
+      ^~~~~~~~~~~~~~
+../src/array.c:43:12: warning: unused variable ‘MAX_MESSAGE_SIZE’ [-Wunused-variable]
+  const int MAX_MESSAGE_SIZE = N;
+            ^~~~~~~~~~~~~~~~
+Finished building: ../src/array.c
+ 
+Building target: Lab1_Array
+Invoking: GCC C Linker
+mpicc  -o "Lab1_Array"  ./src/array.o   
+Finished building target: Lab1_Array
+ 
