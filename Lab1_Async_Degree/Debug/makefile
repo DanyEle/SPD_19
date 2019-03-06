@@ -23,19 +23,19 @@ endif
 # Add inputs and outputs from these tool invocations to the build variables 
 
 # All Target
-all: Lab1_Matrix
+all: Lab1_Async_Degree
 
 # Tool invocations
-Lab1_Matrix: $(OBJS) $(USER_OBJS)
+Lab1_Async_Degree: $(OBJS) $(USER_OBJS)
 	@echo 'Building target: $@'
 	@echo 'Invoking: GCC C Linker'
-	mpicc  -o "Lab1_Matrix" $(OBJS) $(USER_OBJS) $(LIBS)
+	mpicc  -o "Lab1_Async_Degree" $(OBJS) $(USER_OBJS) $(LIBS)
 	@echo 'Finished building target: $@'
 	@echo ' '
 
 # Other Targets
 clean:
-	-$(RM) $(EXECUTABLES)$(OBJS)$(C_DEPS) Lab1_Matrix
+	-$(RM) $(EXECUTABLES)$(OBJS)$(C_DEPS) Lab1_Async_Degree
 	-@echo ' '
 
 .PHONY: all clean dependents

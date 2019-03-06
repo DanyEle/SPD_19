@@ -6,6 +6,7 @@
 #include <string.h>
 
 #define N               10        /* number of rows and columns in matrix */
+#define K
 
 //forward declarations
 int handle_communication(int my_rank, int number_processes, int send_integer);
@@ -39,35 +40,39 @@ int main(int argc, char ** argv)
 
 int handle_communication(int my_rank, int number_processes, int integer_send)
 {
-	//each message is
 	const int MAX_MESSAGE_SIZE = N;
-
+	const int BUFFER_SIZE = N;
 	const int DUMMY_TAG = 789;
 
 	//let's try defining the array over here
-	int a[N];
+	int a[BUFFER_SIZE];
 	printf("I am in process %d.  \n", my_rank);
 
 	//receive all elements of the matrix
-	int buffer_receiver[N];
+	int buffer_receiver[BUFFER_SIZE];
 
 	int next_process = (my_rank + 1) % number_processes;
 	int previous_process = (my_rank - 1) % number_processes;
 
-
 	//root, needs to init the communication
 	if(my_rank == 0)
 	{
-		printf("Sending the following array:\n");
-		//let's initialize the matrix with some values
+		//initialize elements of an array
 		for(int i = 0; i < N; i++)
 		{
 			a[i] = 1;
 			printf("%d|", a[i]);
+		}
+
+
+		for(int i = 0; i < N; i++)
+		{
+			MPI_Request mpi_request;
+			MPI_Isend(&a, MAX_MESSAGE_SIZE, MPI_INT, next_process, DUMMY_TAG, MPI_COMM_WORLD, &mpi_request);
 
 		}
-		//let's send the array's values
-		MPI_Send(&a, MAX_MESSAGE_SIZE, MPI_INT, next_process, DUMMY_TAG, MPI_COMM_WORLD);
+
+
 
 		printf("\n");
 	}
@@ -76,19 +81,22 @@ int handle_communication(int my_rank, int number_processes, int integer_send)
 	if(my_rank != 0)
 	{
 		printf("Received array:\n");
-		MPI_Recv(&a, MAX_MESSAGE_SIZE, MPI_INT, previous_process,  DUMMY_TAG, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+
 
 		for(int i = 0; i < N; i++)
 		{
-			printf("%d|", a[i]);
+			MPI_Request mpi_request_receive;
+			MPI_Irecv(&buffer_receiver, MAX_MESSAGE_SIZE, MPI_INT, previous_process,  DUMMY_TAG, MPI_COMM_WORLD, &mpi_request_receive);
+
+			//must ensure that the data has indeed been received before operating with it
+
+
+
 		}
-		printf("\n");
+
 
 
 	}
-
-
-
 
 	return 0;
 

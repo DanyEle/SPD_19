@@ -1115,3 +1115,9 @@ Caused by: java.lang.NullPointerException
 
 !ENTRY org.eclipse.cdt.core 1 0 2019-03-03 10:09:35.602
 !MESSAGE Indexed 'Lab1_Matrix' (1 sources, 61 headers) in 0.305 sec: 5,918 declarations; 5,387 references; 0 unresolved inclusions; 8,795 syntax errors; 0 unresolved names (0%)
+
+!ENTRY org.eclipse.cdt.core 1 0 2019-03-03 10:27:47.073
+!MESSAGE Indexed 'Lab1_DerivedDataType' (1 sources, 61 headers) in 0.235 sec: 5,918 declarations; 5,407 references; 0 unresolved inclusions; 8,795 syntax errors; 0 unresolved names (0%)
+
+!ENTRY org.eclipse.cdt.core 1 0 2019-03-03 10:47:05.623
+!MESSAGE Indexed 'Lab1_Async_Degree' (1 sources, 2 headers) in 0.136 sec: 4,511 declarations; 3,003 references; 5 unresolved inclusions; 8,795 syntax errors; 2 unresolved names (0.027%)

@@ -1,23 +1,16 @@
-10:05:56 **** Incremental Build of configuration Debug for project Lab1_Array ****
+11:29:18 **** Incremental Build of configuration Debug for project Lab1_Async_Degree ****
 make all 
-Building file: ../src/array.c
+Building file: ../src/async.c
 Invoking: GCC C Compiler
-mpicc -I/usr/include/mpi -O0 -g3 -Wall -c -fmessage-length=0 -MMD -MP -MF"src/array.d" -MT"src/array.o" -o "src/array.o" "../src/array.c"
-../src/array.c: In function ‘main’:
-../src/array.c:26:9: warning: variable ‘mpi_error_code’ set but not used [-Wunused-but-set-variable]
+mpicc -I/usr/include/mpi -O0 -g3 -Wall -c -fmessage-length=0 -MMD -MP -MF"src/async.d" -MT"src/async.o" -o "src/async.o" "../src/async.c"
+../src/async.c: In function ‘main’:
+../src/async.c:26:9: warning: variable ‘mpi_error_code’ set but not used [-Wunused-but-set-variable]
      int mpi_error_code = MPI_Comm_size(MPI_COMM_WORLD, &number_processes);
          ^~~~~~~~~~~~~~
-../src/array.c: In function ‘handle_communication’:
-../src/array.c:54:6: warning: variable ‘mpi_error_code’ set but not used [-Wunused-but-set-variable]
-  int mpi_error_code;
-      ^~~~~~~~~~~~~~
-../src/array.c:43:12: warning: unused variable ‘MAX_MESSAGE_SIZE’ [-Wunused-variable]
-  const int MAX_MESSAGE_SIZE = N;
-            ^~~~~~~~~~~~~~~~
-Finished building: ../src/array.c
+Finished building: ../src/async.c
  
-Building target: Lab1_Array
+Building target: Lab1_Async_Degree
 Invoking: GCC C Linker
-mpicc  -o "Lab1_Array"  ./src/array.o   
-Finished building target: Lab1_Array
+mpicc  -o "Lab1_Async_Degree"  ./src/async.o   
+Finished building target: Lab1_Async_Degree
  
