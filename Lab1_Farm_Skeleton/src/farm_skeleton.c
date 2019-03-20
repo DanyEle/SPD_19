@@ -10,21 +10,23 @@ void emitter(int number_processes);
 void collector();
 void worker(int my_rank);
 
-int handle_communication(int my_rank, int number_processes, int MAX_MESSAGE_SIZE, int send_integer);
-
+//global variables for handling the communication
 #define ID_EMITTER_RANK 0
 #define ID_COLLECTOR_RANK 1
 
 #define EMITTER_TAG 500
 #define COLLECTOR_TAG 501
 
-#define value_send 20
+//N = amount of values to send in the data stream.
+#define N 100000
+//M = value being sent
+#define M 950
 
 
 
 int main(int argc, char ** argv)
 {
-	//my current rank
+	//my current process rank
 	int my_rank;
 	//total amount of processes
 	int number_processes;
@@ -61,53 +63,75 @@ int main(int argc, char ** argv)
 	return 0;
 }
 
-void emitter(int number_processes)
+int custom_function(int inputI)
 {
-
-	int value_emitter = value_send;
-
-
-	for(int i = 2; i < number_processes; i++)
-	{
-		MPI_Send(&value_emitter, 1, MPI_INT, i, EMITTER_TAG, MPI_COMM_WORLD);
-		printf("Sending Data to Worker with PID: %d \n", i);
-	}
-
-	printf("E: In the emitter \n");
-	//need to send function and data to all the workers with a broadcast operation.
+	return inputI * inputI;
 }
 
+void emitter(int number_processes)
+{
+	int buffer_sender[N];
+
+	for(int i = 0; i < N; i++)
+	{
+		buffer_sender[i] = M;
+	}
+
+	//to every single process, send every single piece of data.
+	for(int i = 2; i < number_processes; i++)
+	{
+		MPI_Send(&buffer_sender, N, MPI_INT, i, EMITTER_TAG, MPI_COMM_WORLD);
+		printf("E: Sending Data to Worker with PID: %d \n", i);
+	}
+}
 
 void worker(int my_rank)
 {
+	//receive data.
 	printf("W: In the worker with PID %d \n", my_rank);
-	int buffer_receive[1];
+	int buffer_receive[N];
+	MPI_Recv(&buffer_receive, N, MPI_INT, ID_EMITTER_RANK, EMITTER_TAG, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
 
-	MPI_Recv(&buffer_receive, 1, MPI_INT, ID_EMITTER_RANK, EMITTER_TAG, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+	int buffer_send[N];
 
-	int buffer_send[1];
-	//square operation
-	buffer_send[0] = buffer_receive[0] * buffer_receive[0];
+	//process the received data.
+	for(int i = 0; i < N; i++)
+	{
+		buffer_send[i] = custom_function(buffer_receive[i]);
+	}
 
-	//send the the new value to the emitter now
-	MPI_Send(buffer_send, 1, MPI_INT, ID_COLLECTOR_RANK,COLLECTOR_TAG, MPI_COMM_WORLD);
+	//send the processed data to the collector.
+	MPI_Send(buffer_send, N, MPI_INT, ID_COLLECTOR_RANK,COLLECTOR_TAG, MPI_COMM_WORLD);
 }
+
 
 
 void collector(int number_processes)
 {
+	//receive from every single worker
 	printf("C: In the collector \n");
 
-	//need to receive from every single worker
-	int buffer_receive[1];
+	int buffer_all_workers_vals_recv[N * (number_processes - 2)];
 
+	int j = 0;
 	for(int i = 2; i < number_processes; i++)
 	{
-		MPI_Recv(&buffer_receive, 1, MPI_INT, i, COLLECTOR_TAG, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-		printf("C: Received value %d \n", buffer_receive[0]);
+		int buffer_recv_single_worker[N];
+		MPI_Recv(&buffer_recv_single_worker, N, MPI_INT, i, COLLECTOR_TAG, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
 
+		//finally, print the output of all values received.
+		for(int i = 0; i < N; i++)
+		{
+			buffer_all_workers_vals_recv[j] = buffer_recv_single_worker[i];
+			j++;
+		}
 	}
 
+	for(int i = 0; i < N * (number_processes - 2); i++)
+	{
+		printf("C: Received value %d \n", buffer_all_workers_vals_recv[i]);
+
+	}
 
 
 }
