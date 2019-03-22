@@ -18,9 +18,8 @@ void worker(int my_rank, int number_processes);
 #define COLLECTOR_TAG 501
 
 //N = amount of values to send in the data stream (data stream size)
-#define N 100000
+#define N 1000000
 //M = value being sent
-#define M 950
 #define END_OF_STREAM 0
 
 
@@ -59,7 +58,6 @@ int main(int argc, char ** argv)
     	worker(my_rank, number_processes);
     }
 
-
 	MPI_Finalize();
 	return 0;
 }
@@ -75,7 +73,9 @@ void emitter(int number_processes)
 	//send data in a round-robin fashion to all the workers
 	for(int i = 0; i < N; i++)
 	{
-		int value_send = M;
+
+		//random value instead
+		int value_send = rand();
 
 		int worker_destination = (i % (number_processes - 2)) + 2;
 
