@@ -135,7 +135,7 @@ void collector(int number_processes)
 	int pid = 0;
 	while(1 == 1)
 	{
-		//receive in a round-robin fashion
+		//receive in a round-robin fashion from all worker processes
 		int worker_receive = pid % (number_processes - 2) + 2;
 		//printf("C: Receiving from worker %d \n", worker_receive);
 		int value_received = -1;
