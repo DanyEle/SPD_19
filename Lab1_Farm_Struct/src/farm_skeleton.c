@@ -75,7 +75,7 @@ int main(int argc, char ** argv)
     {
     	collector(number_processes, mpi_car_type);
     }
-    else
+    else if(my_rank != ID_EMITTER_RANK && my_rank != ID_COLLECTOR_RANK)
     {
     	worker(my_rank, mpi_car_type);
     }

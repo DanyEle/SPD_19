@@ -4,13 +4,13 @@
 
 # Add inputs and outputs from these tool invocations to the build variables 
 C_SRCS += \
-../src/token_ring.c 
+../src/farm_skeleton.c 
 
 OBJS += \
-./src/token_ring.o 
+./src/farm_skeleton.o 
 
 C_DEPS += \
-./src/token_ring.d 
+./src/farm_skeleton.d 
 
 
 # Each subdirectory must supply rules for building sources it contributes
