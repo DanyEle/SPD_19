@@ -182,6 +182,7 @@ void collector(int number_processes)
 		//if all the workers have sent an EOS, then stop receiving values
 		if(amount_EOS == (number_processes - 2))
 		{
+			printf("Received EOS from all workers \n");
 			break;
 		}
 		pid++;

@@ -20,12 +20,13 @@
 
 #define EOS_VALUE  -1
 
-
-
 //forward declarations
 
 void emitter(int number_processes, int my_rank);
 void worker(int number_processes, int my_rank);
+void collector(int number_processes, int my_rank);
+
+
 
 
 
@@ -54,6 +55,7 @@ int main(int argc, char ** argv)
     //gather. gather the data from the different workers
     else if(my_rank == COLLECTOR_RANK)
     {
+    	collector(number_processes, my_rank);
 
     }
     //worker. actually do the work
@@ -98,7 +100,7 @@ void emitter(int number_processes, int my_rank)
 		printf("\n");
 	}
 
-	printf("C: Preparting work in the emitter\n");
+	printf("C: Preparing work in the emitter\n");
 
 	//send row and column to one single process.
 
@@ -108,16 +110,16 @@ void emitter(int number_processes, int my_rank)
 	{
 		//columnA is one single column of the matrix A
 		int columnA[N];
-		for(int j = 0; j < N; j++)
+		for(int k = 0; i < N; i++)
 		{
-			columnA[j] = A[i][j];
+			columnA[k] = A[i][k];
 		}
 
 		//rowB is one single row of the matrix B
 		int rowB[N];
 		for(int j = 0; j < N; j++)
 		{
-			rowB[N] = B[j][i];
+			rowB[j] = B[j][i];
 		}
 
 		//now need to send columnA and rowB to one single worker
@@ -147,8 +149,6 @@ void emitter(int number_processes, int my_rank)
 
 void worker(int number_processes, int my_rank)
 {
-
-
 	//only works for one single worker!!!!
 	while(1 == 1)
 	{
@@ -160,7 +160,8 @@ void worker(int number_processes, int my_rank)
 		if(columnA[0] == EOS_VALUE)
 		{
 			printf("W: Received EOS array A\n");
-			//neeed to propagate the EOS to the collector too, actually
+			//need to propagate the EOS to the collector too, actually
+			MPI_Send(columnA, N, MPI_INT, COLLECTOR_RANK, COLLECTOR_TAG, MPI_COMM_WORLD);
 			break;
 		}
 		else
@@ -171,13 +172,72 @@ void worker(int number_processes, int my_rank)
 		int rowB[N];
 		MPI_Recv(&rowB, N, MPI_INT, EMITTER_RANK, EMITTER_TAG, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
 
-
-		//check if an EOS was received
 		printf("W: Received row B\n");
 
+		//perform multiplication among elements in columnA and rowB
+		int lineC[N];
+
+		for(int i = 0; i < N; i++)
+		{
+			lineC[i] = columnA[i] * rowB[i];
+		}
+
+		//and now need to send lineC to the collector, which will need to perform the proper operations
+		MPI_Send(lineC, N, MPI_INT, COLLECTOR_RANK, COLLECTOR_TAG, MPI_COMM_WORLD);
 	}
-
-
 }
+
+void collector(int number_processes, int my_rank)
+{
+	//receive from every single worker
+	//printf("C: In the collector \n");
+	int buffer_received[N];
+	int i = 0;
+	int amount_EOS = 0;
+	int pid = 0;
+	while(1 == 1)
+	{
+		//receive in a round-robin fashion from all worker processes
+		int worker_receive = pid % (number_processes - 2) + 2;
+		//printf("C: Receiving from worker %d \n", worker_receive);
+		int lineC[N];
+		MPI_Recv(&lineC, N, MPI_INT, worker_receive, COLLECTOR_TAG, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+
+
+		//received an EOS from a worker
+		if(lineC[0] == EOS_VALUE)
+		{
+			printf("Received an EOS\n");
+			amount_EOS++;
+		}
+		//no EOS received, then sum all the elements in the array received
+		else
+		{
+			int valueC = 0;
+
+			for(int i = 0; i < N; i++)
+			{
+				valueC += lineC[i];
+			}
+			buffer_received[i] = valueC;
+		}
+		//if all the workers have sent an EOS, then stop receiving values
+		if(amount_EOS == (number_processes - 2))
+		{
+			printf("C: All workers have sent an EOS \n");
+
+			for(int i = 0; i < N; i++)
+			{
+				printf("Received %d \n", buffer_received[i]);
+			}
+			break;
+		}
+		pid++;
+	}
+}
+
+
+
+
 
 
