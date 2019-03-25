@@ -1,0 +1,5 @@
+	  //    fprintf(stderr,"B\t");fflush(stderr);
+	  //  printcoords(data[data_point].coords);
+
+	  //      fprintf(stderr,"A\t");fflush(stderr);
+

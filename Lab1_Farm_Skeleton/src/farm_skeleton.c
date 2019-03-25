@@ -1,14 +1,19 @@
 
 #include <mpi.h>
 #include <omp.h>
+#include <unistd.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <time.h>
+
 
 //forward declarations
 void emitter(int number_processes);
 void collector(int number_processes);
 void worker(int my_rank, int number_processes);
+int random_in_range(int minimum_number, int max_number, int my_rank);
+
 
 //global variables for handling the communication
 #define ID_EMITTER_RANK 0
@@ -18,9 +23,15 @@ void worker(int my_rank, int number_processes);
 #define COLLECTOR_TAG 501
 
 //N = amount of values to send in the data stream (data stream size)
-#define N 1000000
+#define N 10
 //M = value being sent
 #define END_OF_STREAM 0
+#define CONSTANT_WAITING_TIME 1000000
+//random time to wait for
+#define LOWER_BOUND_RANDOM_TIME  0
+#define UPPER_BOUND_RANDOM_TIME 2000000
+
+//output type not necessarility = input
 
 
 
@@ -30,7 +41,6 @@ int main(int argc, char ** argv)
 	int my_rank;
 	//total amount of processes
 	int number_processes;
-
 
 	MPI_Init(&argc, &argv);
 	//basic communicator
@@ -62,18 +72,34 @@ int main(int argc, char ** argv)
 	return 0;
 }
 
-int custom_function(int inputI)
+int custom_function(int inputI, int my_rank)
 {
+	//constant waiting time of 1 second.
+	//wait for a random amount [0 - 2 seconds]
+
+	int rand_waiting_time = random_in_range(LOWER_BOUND_RANDOM_TIME, UPPER_BOUND_RANDOM_TIME, my_rank);
+	printf("Waiting for %d\n", rand_waiting_time);
+	usleep(rand_waiting_time);
+	//usleep(CONSTANT_WAITING_TIME);
+
 	return inputI * inputI;
 }
 
+int random_in_range(int minimum_number, int max_number, int my_rank)
+{
+	 int seed = time(NULL) * my_rank;
+	 srand(seed);
+
+	return (rand() % (max_number + 1 - minimum_number) + minimum_number);
+}
+
+
+
 void emitter(int number_processes)
 {
-
 	//send data in a round-robin fashion to all the workers
 	for(int i = 0; i < N; i++)
 	{
-
 		//random value instead
 		int value_send = rand();
 
@@ -114,7 +140,7 @@ void worker(int my_rank, int number_processes)
 		//no EOS received, then just apply the function and send the processed value to the collector
 		else
 		{
-			int processed_value = custom_function(value_received);
+			int processed_value = custom_function(value_received, my_rank);
 			MPI_Send(&processed_value, 1, MPI_INT, ID_COLLECTOR_RANK,COLLECTOR_TAG, MPI_COMM_WORLD);
 			//printf("W: Sending %d to collector \n", processed_value);
 		}
@@ -160,9 +186,5 @@ void collector(int number_processes)
 		}
 		pid++;
 	}
-
-	//printf("C: Received %d values \n", i);
-
-
 
 }
