@@ -9,7 +9,7 @@
 
 
 //forward declarations
-void emitter(int number_processes);
+void emitter(int number_processes, int my_rank);
 void collector(int number_processes);
 void worker(int my_rank, int number_processes);
 int random_in_range(int minimum_number, int max_number, int my_rank);
@@ -58,7 +58,7 @@ int main(int argc, char ** argv)
     //emitter
     if(my_rank == ID_EMITTER_RANK)
     {
-    	emitter(number_processes);
+    	emitter(number_processes, my_rank);
     }
     //collector
     else if(my_rank == ID_COLLECTOR_RANK)
@@ -81,11 +81,11 @@ int custom_function(int inputI, int my_rank)
 	//wait for a random amount [0 - 2 seconds]
 
 	int rand_waiting_time = random_in_range(LOWER_BOUND_RANDOM_TIME, UPPER_BOUND_RANDOM_TIME, my_rank);
-	//printf("Waiting for %d\n", rand_waiting_time);
+	printf("Waiting for %d\n", rand_waiting_time);
 	usleep(rand_waiting_time);
 	//usleep(CONSTANT_WAITING_TIME);
 
-	return inputI * inputI;
+	return inputI * 2;
 }
 
 int random_in_range(int minimum_number, int max_number, int my_rank)
@@ -98,22 +98,37 @@ int random_in_range(int minimum_number, int max_number, int my_rank)
 
 
 
-void emitter(int number_processes)
+void emitter(int number_processes, int my_rank)
 {
 	//use a flag variable signalising whether more work is available.
 
 	int i = 0;
 	//emitter keeps waiting for workers to send requests for data as long as the stream has not been exhauster
+	int amount_EOS_received = 0;
 	while(1 == 1)
 	{
 		int worker_destination = (i % (number_processes - 2)) + 2;
 		int value_received = -1;
 		MPI_Recv(&value_received, 1, MPI_INT, worker_destination, EMITTER_TAG, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-		//received less requests for work than the stream size
 
-		int value_send = rand();
-		MPI_Send(&value_send, 1, MPI_INT, worker_destination, EMITTER_TAG, MPI_COMM_WORLD);
+		//received an EOS msg from a worker, so no need to send anything back.
+		if(value_received == END_OF_STREAM)
+		{
+			amount_EOS_received++;
+		}
+		//received a request for work
+		else
+		{
+			int value_send = random_in_range(LOWER_BOUND_RANDOM_TIME, UPPER_BOUND_RANDOM_TIME, my_rank);
 
+			MPI_Send(&value_send, 1, MPI_INT, worker_destination, EMITTER_TAG, MPI_COMM_WORLD);
+		}
+
+		if(amount_EOS_received == (number_processes - 2))
+		{
+			break;
+		}
+		i++;
 	}
 }
 
@@ -123,35 +138,33 @@ void worker(int my_rank, int number_processes)
 	//printf("W: In the worker with PID %d \n", my_rank);
 	//i represents the amount of values received by the present worker
 	int i = 0;
-	while(1 == 1)
+	while(i < N)
 	{
 		//send a request for work to the emitter
 		int work_request = WORKER_WORK_REQUEST;
 		MPI_Send(&work_request, 1, MPI_INT, ID_EMITTER_RANK, EMITTER_TAG, MPI_COMM_WORLD);
 
-		//and then start receiving a value from the emitter
+		//and then start receiving a value from the emitter (the actual work to be carried out)
 		int value_received = -1;
 		MPI_Recv(&value_received, 1, MPI_INT, ID_EMITTER_RANK, EMITTER_TAG, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
 
-		//if an EOS received, then stop receiving values and send an EOS to the collector as well.
-		if(value_received == END_OF_STREAM)
-		{
-			//printf("W: Received EOS value \n");
-			int eos_msg = END_OF_STREAM;
-			MPI_Send(&eos_msg, 1, MPI_INT, ID_COLLECTOR_RANK,COLLECTOR_TAG, MPI_COMM_WORLD);
-			printf("W: Stop. Received EOS.");
-			break;
-		}
-		//no EOS received, then just apply the function and send the processed value to the collector
-		else
-		{
-			int processed_value = custom_function(value_received, my_rank);
-			MPI_Send(&processed_value, 1, MPI_INT, ID_COLLECTOR_RANK,COLLECTOR_TAG, MPI_COMM_WORLD);
-			//printf("W: Sending %d to collector \n", processed_value);
-		}
+		printf("W: Value received %d \n", value_received);
+
+		//we are sure to have some work here.
+		int processed_value = custom_function(value_received, my_rank);
+
+		MPI_Send(&processed_value, 1, MPI_INT, ID_COLLECTOR_RANK,COLLECTOR_TAG, MPI_COMM_WORLD);
+		printf("W: Sending %d to collector \n", processed_value);
 		i++;
 	}
-	//printf("W: Received a total of %d values\n", i);
+
+	//now need to send an EOS to the emitter, because the stream being sent has finished.
+	int eos_msg = END_OF_STREAM;
+	MPI_Send(&eos_msg, 1, MPI_INT, ID_EMITTER_RANK, EMITTER_TAG, MPI_COMM_WORLD);
+
+	//and send an EOS to the collector as well
+	MPI_Send(&eos_msg, 1, MPI_INT, ID_COLLECTOR_RANK, COLLECTOR_TAG, MPI_COMM_WORLD);
+
 }
 
 
@@ -178,11 +191,11 @@ void collector(int number_processes)
 			amount_EOS++;
 		}
 		//no EOS received, then just add it the element to the buffer
-		else
-		{
-			buffer_received[i] = value_received;
-			i++;
-		}
+		//else
+		//{
+		//	buffer_received[i] = value_received;
+		//	i++;
+		//}
 		//if all the workers have sent an EOS, then stop receiving values
 		if(amount_EOS == (number_processes - 2))
 		{
