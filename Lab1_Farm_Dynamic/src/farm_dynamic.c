@@ -29,12 +29,11 @@ int random_in_range(int minimum_number, int max_number, int my_rank);
 #define CONSTANT_WAITING_TIME 1000000
 //random time to wait for
 #define LOWER_BOUND_RANDOM_TIME  0
-#define UPPER_BOUND_RANDOM_TIME 200000
+#define UPPER_BOUND_RANDOM_TIME 2000000
 
 #define WORKER_WORK_REQUEST -10
 
 //output type not necessarility = input
-
 
 
 int main(int argc, char ** argv)
@@ -138,7 +137,10 @@ void worker(int my_rank, int number_processes)
 	//printf("W: In the worker with PID %d \n", my_rank);
 	//i represents the amount of values received by the present worker
 	int i = 0;
-	while(i < N)
+
+	int stream_size_worker = (int) N / number_processes;
+
+	while(i < stream_size_worker)
 	{
 		//send a request for work to the emitter
 		int work_request = WORKER_WORK_REQUEST;
