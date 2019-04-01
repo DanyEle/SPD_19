@@ -1,0 +1,59 @@
+This archive contains several files implementing the k-means algorithm
+and a suitable data generator, to be used as a testing ground for
+developing parallel versions.
+
+
+kmeans.h
+
+	include file with common types and the constants which define
+	program behaviour
+
+generatedata.c
+
+	the data generator; accept two parameters, the number of
+	centroids to use, and the number of chunks for splitting the
+	file (up to you to implement); all other parameters are
+	embeded in the code. 
+
+	Output is on stdout, redirect the program to save it.
+
+	A define in the program switches on and off real pseudorandom
+	generation, instead of repeatable pseudorandom behaviour with
+	constant seed.
+
+kmeans.c
+
+	the kmeans sequential algorithm; again, two parameters: number
+	of centroids and number of chunks (unimplemented). 
+
+	Note that you CAN look for a number of centroids different
+	from the number you generated with (in the real world you have
+	no information about the data distribution).
+
+	Input and output are stdin and stdout.
+
+util.c
+
+	utility functions common to both C files
+
+plotexample.gplot
+plottest.gplot
+plottest2.gplot
+
+	gnuplot files for building the code and checking the results
+	they employ some default names for the files they are loading,
+	and they expact the input to be formatted in their own, simple
+	way. So beware of additional printouts in the program.
+
+Makefile
+
+	several targets to build the generator and the algorithm, plus
+	some (2D only) tests employing gnuplot to render the data
+
+	plotexample : call the generator with 5 centroids, draw result
+	in gnuplot
+
+	test : on top o fhte plotexample data, run kmeans with 5 centroids
+
+	test2 : same as before, but with a 15-centroid data file and
+	kmeans run with 5 centroids

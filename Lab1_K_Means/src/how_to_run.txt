@@ -1,0 +1,4 @@
+./kmeans 5 <dataset.txt > plottest.cent
+#k = 5
+#plot the data generated
+gnuplot --persist plottest.cent

@@ -1,0 +1,1 @@
+./kmeans 2 1 <dataset.txt > plottest.cent

@@ -1,16 +1,16 @@
-17:43:36 **** Incremental Build of configuration Debug for project Lab1_Farm_Skeleton ****
+14:08:33 **** Clean-only build of configuration Debug for project Lab1_Farm_Struct ****
+make clean 
+rm -rf  ./src/farm_skeleton.o  ./src/farm_skeleton.d  Lab1_Farm_Struct
+ 
+14:08:33 **** Incremental Build of configuration Debug for project Lab1_Farm_Struct ****
 make all 
 Building file: ../src/farm_skeleton.c
 Invoking: GCC C Compiler
 mpicc -I/usr/include/mpi -O0 -g3 -Wall -c -fmessage-length=0 -MMD -MP -MF"src/farm_skeleton.d" -MT"src/farm_skeleton.o" -o "src/farm_skeleton.o" "../src/farm_skeleton.c"
-../src/farm_skeleton.c: In function ‘collector’:
-../src/farm_skeleton.c:157:6: warning: variable ‘buffer_received’ set but not used [-Wunused-but-set-variable]
-  int buffer_received[N];
-      ^~~~~~~~~~~~~~~
 Finished building: ../src/farm_skeleton.c
  
-Building target: Lab1_Farm_Skeleton
+Building target: Lab1_Farm_Struct
 Invoking: GCC C Linker
-mpicc  -o "Lab1_Farm_Skeleton"  ./src/farm_skeleton.o   
-Finished building target: Lab1_Farm_Skeleton
+mpicc  -o "Lab1_Farm_Struct"  ./src/farm_skeleton.o   
+Finished building target: Lab1_Farm_Struct
  

@@ -1,68 +1,78 @@
 
+//Credits: https://gist.github.com/rehrumesh/b103636b6337baafb52f
+//for some inspiration
+
 #include <mpi.h>
 #include <omp.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <time.h>
+#include <stdbool.h>
+#include <stdint.h>
+
+
+void handle_master(int numworkers);
+void handle_worker();
+
 
 // number of rows and columns in matrix (square matrix)
+
+//need for as many workers as the amount of rows
 #define N 3
 //value set in matrix A
 #define A_VALUE 5
 //value set in matrix B
 #define B_VALUE 5
 
-#define EMITTER_TAG 750
-#define COLLECTOR_TAG 751
-
-#define EMITTER_RANK 0
-#define COLLECTOR_RANK 1
-
-#define EOS_VALUE  -1
-
-//forward declarations
-
-void emitter(int number_processes, int my_rank);
-void worker(int number_processes, int my_rank);
-void collector(int number_processes, int my_rank);
 
 
 
+#define MASTER_RANK 0
+
+
+
+int a[N][N],b[N][N],c[N][N];
+
+
+
+
+//Por
 
 
 int main(int argc, char ** argv)
 {
-	int my_rank;
-	int number_processes;
+	 //int numtasks,taskid,numworkers,source,rows,offset,i,j,k;
+	 int numtasks;
+	 int taskid;
 
-	MPI_Init(&argc, &argv);
-	//basic communicator	int B[N][N];
+	 //initialize every single process.
+	 MPI_Init(&argc, &argv);
+	 MPI_Comm_rank(MPI_COMM_WORLD, &taskid);
+	 MPI_Comm_size(MPI_COMM_WORLD, &numtasks);
 
-	MPI_Comm_rank(MPI_COMM_WORLD, &my_rank);
-    MPI_Comm_size(MPI_COMM_WORLD, &number_processes);
 
-    if(number_processes <= 2)
-    {
-    	printf("You have provided %d processes. At least 3 processes are required though (scatter, worker, gather).\n", number_processes);
+     if(numtasks <= 1)
+     {
+    	printf("You have provided %d processes. At least 2 processes are required though (1 master and 1 worker.\n", numtasks);
     	return - 1;
-    }
-
-    //emitter - distribute data among workers
-    if(my_rank == EMITTER_RANK)
-    {
-    	emitter(number_processes, my_rank);
      }
-    //gather. gather the data from the different workers
-    else if(my_rank == COLLECTOR_RANK)
-    {
-    	collector(number_processes, my_rank);
 
-    }
-    //worker. actually do the work
-    else if(my_rank != 0 && my_rank != 1)
-    {
-    	worker(number_processes, my_rank);
-    }
+     int numworkers = numtasks - 1;
+
+     //MASTER --> Handle the matrix distribution.
+     if (taskid == MASTER_RANK)
+     {
+    	 handle_master(numworkers);
+
+     }
+
+     if(taskid != MASTER_RANK)
+     {
+    	 handle_worker(numworkers);
+     }
+
+     //handle the sending of the matrix to the workers
 
 	MPI_Finalize();
 
@@ -70,174 +80,89 @@ int main(int argc, char ** argv)
 
 }
 
-void emitter(int number_processes, int my_rank)
+//Handle the distribution of the matrix among the workers.
+void handle_master(int numworkers)
 {
-	//in the scatter process
-	int A[N][N];
-	int B[N][N];
+	printf("M: Sending work to every single worker.\n");
+
+	int rows = N/numworkers;
+	int offset = 0;
 
 
+	for (int i=0; i<N; i++)
+	{
+	  for (int j=0; j<N; j++)
+	  {
+		a[i][j]= A_VALUE;
+		b[i][j]= B_VALUE;
+	  }
+	}
+
+	//send the matrices to the workers and the part they will need to process.
+	for (int dest = 1; dest <= numworkers; dest++)
+	{
+		MPI_Send(&offset, 1, MPI_INT, dest, 1, MPI_COMM_WORLD);
+		MPI_Send(&rows, 1, MPI_INT, dest, 1, MPI_COMM_WORLD);
+		MPI_Send(&a[offset][0], rows*N, MPI_INT,dest,1, MPI_COMM_WORLD);
+		MPI_Send(&b, N*N, MPI_INT, dest, 1, MPI_COMM_WORLD);
+		offset = offset + rows;
+	}
+
+	MPI_Status status;
+
+	//now start receiving the results from the workers
+	for (int i = 1; i <= numworkers; i++)
+	{
+	  MPI_Recv(&offset, 1, MPI_INT, i, 2, MPI_COMM_WORLD, &status);
+	  MPI_Recv(&rows, 1, MPI_INT, i, 2, MPI_COMM_WORLD, &status);
+	  MPI_Recv(&c[offset][0], rows*N, MPI_INT, i, 2, MPI_COMM_WORLD, &status);
+	}
+
+	//print the resulting matrix
 	for(int i = 0; i < N; i++)
 	{
 		for(int j = 0; j < N; j++)
 		{
-			A[i][j] = A_VALUE;
-			printf("%d ", A[i][j]);
+			printf("%d ", c[i][j]);
 		}
 		printf("\n");
+
 	}
 
-	printf("\n");
 
-
-	for(int i = 0; i < N; i++)
-	{
-		for(int j = 0; j < N; j++)
-		{
-			B[i][j] = B_VALUE;
-			printf("%d ", B[i][j]);
-		}
-		printf("\n");
-	}
-
-	printf("C: Preparing work in the emitter\n");
-
-	//send row and column to one single process.
-
-	//loop through all the columns of the matrix A
-	//loop through all the rows of the matrix B
-	for(int i = 0; i < N; i++)
-	{
-		//columnA is one single column of the matrix A
-		int columnA[N];
-		for(int k = 0; i < N; i++)
-		{
-			columnA[k] = A[i][k];
-		}
-
-		//rowB is one single row of the matrix B
-		int rowB[N];
-		for(int j = 0; j < N; j++)
-		{
-			rowB[j] = B[j][i];
-		}
-
-		//now need to send columnA and rowB to one single worker
-		int worker_destination = (i % (number_processes - 2)) + 2;
-
-		//who cares about data structures, when you can simply use two sends
-		MPI_Send(&columnA, N, MPI_INT, worker_destination, EMITTER_TAG, MPI_COMM_WORLD);
-		MPI_Send(&rowB, N, MPI_INT, worker_destination, EMITTER_TAG, MPI_COMM_WORLD);
-	}
-
-	//COMMUNICATION OF MATRIX ROWS AND COLUMNS TERMINATED. NOW SEND EOS VALUES.
-	int EOS_Array[N];
-
-	for(int i = 0; i < N; i++)
-	{
-		EOS_Array[i] = EOS_VALUE;
-	}
-
-	//send an EOS array to all the workers
-	for(int j = 2; j < number_processes; j++)
-	{
-		MPI_Send(&EOS_Array, N, MPI_INT, j, EMITTER_TAG, MPI_COMM_WORLD);
-	}
 
 }
 
-
-void worker(int number_processes, int my_rank)
+void handle_worker()
 {
-	//only works for one single worker!!!!
-	while(1 == 1)
+	int offset, rows;
+	MPI_Status status;
+
+	MPI_Recv(&offset, 1, MPI_INT, MASTER_RANK, 1, MPI_COMM_WORLD, &status);
+	MPI_Recv(&rows, 1, MPI_INT, MASTER_RANK, 1, MPI_COMM_WORLD, &status);
+	MPI_Recv(&a, rows*N, MPI_DOUBLE, MASTER_RANK, 1, MPI_COMM_WORLD, &status);
+	MPI_Recv(&b, N*N, MPI_DOUBLE, MASTER_RANK, 1, MPI_COMM_WORLD, &status);
+
+	/* Matrix multiplication - O(n^3) */
+	for (int k=0; k<N; k++)
 	{
+	  for (int i=0; i<rows; i++)
+	  {
+		c[i][k] = 0;
 
-		int columnA[N];
-		MPI_Recv(&columnA, N, MPI_INT, EMITTER_RANK, EMITTER_TAG, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-
-		//check if an EOS was received
-		if(columnA[0] == EOS_VALUE)
+		for (int j=0; j<N; j++)
 		{
-			printf("W: Received EOS array A\n");
-			//need to propagate the EOS to the collector too, actually
-			MPI_Send(columnA, N, MPI_INT, COLLECTOR_RANK, COLLECTOR_TAG, MPI_COMM_WORLD);
-			break;
+		  c[i][k] = c[i][k] + a[i][j] * b[j][k];
 		}
-		else
-		{
-			printf("W: Received column A\n");
-		}
-
-		int rowB[N];
-		MPI_Recv(&rowB, N, MPI_INT, EMITTER_RANK, EMITTER_TAG, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-
-		printf("W: Received row B\n");
-
-		//perform multiplication among elements in columnA and rowB
-		int lineC[N];
-
-		for(int i = 0; i < N; i++)
-		{
-			lineC[i] = columnA[i] * rowB[i];
-		}
-
-		//and now need to send lineC to the collector, which will need to perform the proper operations
-		MPI_Send(lineC, N, MPI_INT, COLLECTOR_RANK, COLLECTOR_TAG, MPI_COMM_WORLD);
+	  }
 	}
+
+	//send back the results to the master
+	MPI_Send(&offset, 1, MPI_INT, 0, 2, MPI_COMM_WORLD);
+	MPI_Send(&rows, 1, MPI_INT, 0, 2, MPI_COMM_WORLD);
+	MPI_Send(&c, rows*N, MPI_DOUBLE, 0, 2, MPI_COMM_WORLD);
+
 }
-
-void collector(int number_processes, int my_rank)
-{
-	//receive from every single worker
-	//printf("C: In the collector \n");
-	int buffer_received[N];
-	int i = 0;
-	int amount_EOS = 0;
-	int pid = 0;
-	while(1 == 1)
-	{
-		//receive in a round-robin fashion from all worker processes
-		int worker_receive = pid % (number_processes - 2) + 2;
-		//printf("C: Receiving from worker %d \n", worker_receive);
-		int lineC[N];
-		MPI_Recv(&lineC, N, MPI_INT, worker_receive, COLLECTOR_TAG, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-
-
-		//received an EOS from a worker
-		if(lineC[0] == EOS_VALUE)
-		{
-			printf("Received an EOS\n");
-			amount_EOS++;
-		}
-		//no EOS received, then sum all the elements in the array received
-		else
-		{
-			int valueC = 0;
-
-			for(int i = 0; i < N; i++)
-			{
-				valueC += lineC[i];
-			}
-			buffer_received[i] = valueC;
-		}
-		//if all the workers have sent an EOS, then stop receiving values
-		if(amount_EOS == (number_processes - 2))
-		{
-			printf("C: All workers have sent an EOS \n");
-
-			for(int i = 0; i < N; i++)
-			{
-				printf("Received %d \n", buffer_received[i]);
-			}
-			break;
-		}
-		pid++;
-	}
-}
-
-
-
 
 
 
