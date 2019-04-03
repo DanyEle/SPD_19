@@ -18,6 +18,9 @@ void printcentroids(c_row * centroidSet, int n_cen);
 void fprintcentroids(FILE *f, c_row * centroidSet, int n_cen);
 MPI_Datatype init_data_communication(int my_rank, int number_processes);
 
+#define ID_EMITTER_RANK 0
+#define ID_COLLECTOR_RANK 1
+
 /******************************************/
 
 //array with a custom data type
@@ -123,7 +126,7 @@ int k_means(int my_rank, int argc, char ** argv, int number_processes, MPI_Datat
 }
 
 
-
+/*
 //argc = amount of parameters passed
 //argv = actual parameters passed.
 int main(int argc, char ** argv )
@@ -149,6 +152,8 @@ int main(int argc, char ** argv )
 	return 0;
 }
 
+*/
+
 MPI_Datatype init_data_communication(int my_rank, int number_processes)
 {
 	  //create the data type that will need to be sent and received, respectively.
@@ -165,11 +170,10 @@ MPI_Datatype init_data_communication(int my_rank, int number_processes)
 
 	int i = 0;
 
-
 	MPI_Type_create_struct(nitems, blocklengths, offsets, types, &mpi_data);
 	MPI_Type_commit(&mpi_data);
 
-	if(my_rank == ID_ROOT)
+	if(my_rank == ID_EMITTER_RANK)
 	{
 		  //ROOT only reads the file
 		  for (i=0;i<CHUNK_SIZE; i++)
@@ -180,7 +184,7 @@ MPI_Datatype init_data_communication(int my_rank, int number_processes)
 		  }
 
 			//The root sends the loaded data to all the other processes.
-			for(int i = 1; i < number_processes; i++)
+			for(int i = 2; i < number_processes; i++)
 			{
 				MPI_Send(data, CHUNK_SIZE, mpi_data, i, ROOT_TAG, MPI_COMM_WORLD);
 			}
@@ -188,7 +192,7 @@ MPI_Datatype init_data_communication(int my_rank, int number_processes)
 
 	  }
 
-	  if(my_rank != ID_ROOT)
+	  if(my_rank != ID_EMITTER_RANK && my_rank != ID_COLLECTOR_RANK)
 	  {
 		  //receive from the root
 		  MPI_Recv(data , CHUNK_SIZE, mpi_data, ID_ROOT, ROOT_TAG, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
