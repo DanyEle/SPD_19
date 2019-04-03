@@ -13,6 +13,7 @@
 void computemindist(row * data, c_row * centroids, int n_cen);
 void printcentroids(c_row * centroidSet, int n_cen);
 void fprintcentroids(FILE *f, c_row * centroidSet, int n_cen);
+MPI_Datatype init_data_communication(int my_rank, int number_processes);
 
 /******************************************/
 
@@ -26,64 +27,14 @@ c_row new_centroids [MAX_CENTR];
 
 
 
-int k_means(int my_rank, int argc, char ** argv, int number_processes)
+int k_means(int my_rank, int argc, char ** argv, int number_processes, MPI_Datatype mpi_data)
 {
 	  int k = my_rank + 1;
 	  printf("Running K-Means with k = %d \n",k);
 
 	  int i,j, data_point;
-	  int convergence =0; //not used yet
+	  int convergence = 0; //not used yet
 	  int iteration = 0;
-
-
-	  //create the data type that will need to be sent and received, respectively.
-		const int nitems=3;
-		int          blocklengths[3] = {SPACE_DIM, 1,1};
-		MPI_Datatype types[3] = {MPI_DOUBLE, MPI_DOUBLE, MPI_INT};
-		//MPI_Datatype mpi_data;
-		MPI_Aint     offsets[3];
-
-		//offers =  {0, (void *) &car.shifts - ((void *) &car)};
-
-		offsets[0] = offsetof(struct data_row, coords);
-		offsets[1] = offsetof(struct data_row, mindist);
-		offsets[2] = offsetof(struct data_row, centroid);
-
-		MPI_Datatype mpi_data;
-
-
-		MPI_Type_create_struct(nitems, blocklengths, offsets, types, &mpi_data);
-		MPI_Type_commit(&mpi_data);
-
-
-	  if(my_rank == 0)
-	  {
-		  //ROOT only reads the file
-		  for (i=0;i<CHUNK_SIZE; i++)
-		  {
-			readcoords(data[i].coords);
-			data[i].mindist=0;    // clear distances
-			data[i].centroid=-1;  // assign to no centroid
-		  }
-
-		 	//send to all the other processes the loaded data.
-		 	for(int i = 1; i < number_processes; i++)
-		 	{
-		 		MPI_Send(data, CHUNK_SIZE, mpi_data, i, 0, MPI_COMM_WORLD);
-		 	}
-			  printf("Sent to all processes \n");
-
-	  }
-
-	  if(my_rank != 0)
-	  {
-		  //receive from the root
-		  MPI_Recv(data , CHUNK_SIZE, mpi_data, 0, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-		  printf("Received data \n");
-
-	  }
-
-	  //firstly create the data type for th
 
 	  //set the k passed over here.
 	  n_cen = k;
@@ -184,17 +135,64 @@ int main(int argc, char ** argv )
 	MPI_Comm_rank(MPI_COMM_WORLD, &my_rank);
 	MPI_Comm_size(MPI_COMM_WORLD, &number_processes);
 
-	if(number_processes < 2)
-	{
-		fprintf(stderr, "Cannot run k-Means with K = 1 (one single process)\n");
-	}
+	//current vs farm-style scaling vs optimized-farm[Longest job first].
+	//handle communication over here
 
-	//just for debug.
-	k_means(my_rank, argc, argv, number_processes);
+	//initialize the data at the root process, then send it to all the other processes.
+	MPI_Datatype mpi_data_type = init_data_communication(my_rank, number_processes);
+	k_means(my_rank, argc, argv, number_processes, mpi_data_type);
 	MPI_Finalize();
 
 	return 0;
+}
 
+MPI_Datatype init_data_communication(int my_rank, int number_processes)
+{
+	  //create the data type that will need to be sent and received, respectively.
+	const int nitems=3;
+	int          blocklengths[3] = {SPACE_DIM, 1,1};
+	MPI_Datatype types[3] = {MPI_DOUBLE, MPI_DOUBLE, MPI_INT};
+	MPI_Aint     offsets[3];
+
+	offsets[0] = offsetof(struct data_row, coords);
+	offsets[1] = offsetof(struct data_row, mindist);
+	offsets[2] = offsetof(struct data_row, centroid);
+
+	MPI_Datatype mpi_data;
+
+	int i = 0;
+
+
+	MPI_Type_create_struct(nitems, blocklengths, offsets, types, &mpi_data);
+	MPI_Type_commit(&mpi_data);
+
+	if(my_rank == 0)
+	{
+		  //ROOT only reads the file
+		  for (i=0;i<CHUNK_SIZE; i++)
+		  {
+			readcoords(data[i].coords);
+			data[i].mindist=0;    // clear distances
+			data[i].centroid=-1;  // assign to no centroid
+		  }
+
+			//send to all the other processes the loaded data.
+			for(int i = 1; i < number_processes; i++)
+			{
+				MPI_Send(data, CHUNK_SIZE, mpi_data, i, 0, MPI_COMM_WORLD);
+			}
+			  printf("Sent to all processes \n");
+
+	  }
+
+	  if(my_rank != 0)
+	  {
+		  //receive from the root
+		  MPI_Recv(data , CHUNK_SIZE, mpi_data, 0, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+		  printf("Received data \n");
+	  }
+
+	  return mpi_data;
 }
 
 

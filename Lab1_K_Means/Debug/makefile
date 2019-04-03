@@ -23,19 +23,19 @@ endif
 # Add inputs and outputs from these tool invocations to the build variables 
 
 # All Target
-all: K_Means_Sequential
+all: Lab1_K_Means
 
 # Tool invocations
-K_Means_Sequential: $(OBJS) $(USER_OBJS)
+Lab1_K_Means: $(OBJS) $(USER_OBJS)
 	@echo 'Building target: $@'
 	@echo 'Invoking: GCC C Linker'
-	mpicc  -o "K_Means_Sequential" $(OBJS) $(USER_OBJS) $(LIBS)
+	mpicc  -o "Lab1_K_Means" $(OBJS) $(USER_OBJS) $(LIBS)
 	@echo 'Finished building target: $@'
 	@echo ' '
 
 # Other Targets
 clean:
-	-$(RM) $(EXECUTABLES)$(OBJS)$(C_DEPS) K_Means_Sequential
+	-$(RM) $(EXECUTABLES)$(OBJS)$(C_DEPS) Lab1_K_Means
 	-@echo ' '
 
 .PHONY: all clean dependents
