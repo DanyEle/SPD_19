@@ -6,8 +6,8 @@
 
 #include "Save_Array_as_PPM.c"
 
-#define AMOUNT_ROWS 10
-#define AMOUNT_COLUMNS 10
+#define AMOUNT_ROWS 1000
+#define AMOUNT_COLUMNS 1000
 
 using namespace tbb;
 using namespace std;
@@ -17,7 +17,7 @@ using namespace std;
 #define DEFAULT_Y -2.0
 #define DEFAULT_SIZE 4.0
 #define DEFAULT_PIXELS 10
-#define DEFAULT_ITERATIONS 1000
+#define DEFAULT_ITERATIONS 100000
 
 // we assume a point diverges if its squared modulus exceeds this value
 #define MAX_SMODULUS 4
@@ -27,7 +27,7 @@ static int maxIter = DEFAULT_ITERATIONS;
 
 int saveimg(int dimx, int dimy, const char * filename, int * matrix, int max_value);
 
-//function computing the mandelbrot in asingle point
+//function computing the mandelbrot in a single point
 //returns the number of iteration until divergence
 int mand_compute( double cx, double cy)
 {
@@ -49,48 +49,31 @@ int mand_compute( double cx, double cy)
 
 //main
 int main () {
-
-
 	// initialization of matrix
-	int a [AMOUNT_ROWS][AMOUNT_COLUMNS] = {};
+	int a [AMOUNT_ROWS][AMOUNT_COLUMNS] = {{0}};
 
-	for(int i = 0; i < AMOUNT_ROWS; i++)
-	{
-		for(int j = 0; j < AMOUNT_COLUMNS; j++)
-		{
-			a[i][j] = i;
-		}
-	}
+	//int * b [AMOUNT_ROWS];
 
-	int * b [AMOUNT_ROWS];
+	int(*b) [AMOUNT_ROWS];
 
-	//initialize b with dummy values
-	for(int i = 0; i < AMOUNT_ROWS; i++)
-	{
-		for(int j = 0; j < AMOUNT_COLUMNS; j++)
-		{
-			b[i][j] = i;
-			printf("%d \n", b[i][j]);
-		}
-	}
+	b = a;
 
 	//loop over the matrix and compute the amount of iterations it takes
 	//for the mandelbrot function to converge
-	tbb::parallel_for(0, AMOUNT_ROWS, [a, b](int i){
-				tbb::parallel_for(0, AMOUNT_COLUMNS, [i, a, b](int j){
-
+	tbb::parallel_for(0, AMOUNT_ROWS, [b, &a](int row){
+				tbb::parallel_for(0, AMOUNT_COLUMNS, [b, &a, row](int col){
 					//rows = y axis
 					//columns = x axis
-					double y = (double)i;
-					double x = (double)j;
+					//compute the complex number
+					double c_re = (col - AMOUNT_COLUMNS/2.0)*4.0/AMOUNT_COLUMNS;
+					double c_im = (row - AMOUNT_ROWS/2.0)*4.0/AMOUNT_ROWS;
 
 					//let's compute mandelbrot based on it.
-					int iters = mand_compute(x, y);
+					int iters = mand_compute(c_re, c_im) ;
 
-					printf("%d \n", iters);
+					//printf("%d \n", iters);
 
-					b[i][j] = iters;
-
+					b[row][col] = iters;
 				});
 			});
 
@@ -98,11 +81,15 @@ int main () {
 		{
 			for(int j = 0; j < AMOUNT_COLUMNS; j++)
 			{
-				printf("%d \n ", b[i][j]);
+				printf("%d | " , b[i][j]);
 			}
+			printf("\n");
 		}
+
 		//let's try printing the final matrix, shall we?
-		//saveimg(AMOUNT_COLUMNS, AMOUNT_ROWS, "mymatrix.ppm", *b, AMOUNT_ROWS);
+
+	    const int MaxColorComponentValue = 255;
+		saveimg(AMOUNT_COLUMNS, AMOUNT_ROWS, "mymatrix.ppm",* b, MaxColorComponentValue);
 
 }
 

@@ -1,3 +1,9 @@
-10:31:49 **** Incremental Build of configuration Debug for project Lab2_TBB_Simple_Mandelbrot ****
+17:16:22 **** Incremental Build of configuration Debug for project Lab2_TBB_Simple_Mandelbrot ****
+make all 
+make: Nothing to be done for 'all'.
+17:16:24 **** Incremental Build of configuration Debug for project Lab2_TBB_Simple_Mandelbrot ****
+make all 
+make: Nothing to be done for 'all'.
+17:24:27 **** Incremental Build of configuration Debug for project Lab2_TBB_Simple_Mandelbrot ****
 make all 
 make: Nothing to be done for 'all'.
