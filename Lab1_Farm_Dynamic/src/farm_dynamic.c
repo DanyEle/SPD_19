@@ -36,6 +36,9 @@ int random_in_range(int minimum_number, int max_number, int my_rank);
 //output type not necessarility = input
 
 
+//does not scale properly because of the work present at the emitter.
+
+
 int main(int argc, char ** argv)
 {
 	//my current process rank

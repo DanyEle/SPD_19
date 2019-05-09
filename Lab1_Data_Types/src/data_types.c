@@ -13,6 +13,8 @@ typedef struct car_s {
 #define PID_SENDER 0
 
 
+//send a custom data type from one process to the other.
+
 int main(int argc, char ** argv)
 {
 	const int tag = 13;

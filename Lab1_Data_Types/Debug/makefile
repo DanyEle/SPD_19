@@ -23,19 +23,19 @@ endif
 # Add inputs and outputs from these tool invocations to the build variables 
 
 # All Target
-all: Lab_1_Data_Types
+all: Lab1_Data_Types
 
 # Tool invocations
-Lab_1_Data_Types: $(OBJS) $(USER_OBJS)
+Lab1_Data_Types: $(OBJS) $(USER_OBJS)
 	@echo 'Building target: $@'
 	@echo 'Invoking: GCC C Linker'
-	mpicc  -o "Lab_1_Data_Types" $(OBJS) $(USER_OBJS) $(LIBS)
+	mpicc  -o "Lab1_Data_Types" $(OBJS) $(USER_OBJS) $(LIBS)
 	@echo 'Finished building target: $@'
 	@echo ' '
 
 # Other Targets
 clean:
-	-$(RM) $(EXECUTABLES)$(OBJS)$(C_DEPS) Lab_1_Data_Types
+	-$(RM) $(EXECUTABLES)$(OBJS)$(C_DEPS) Lab1_Data_Types
 	-@echo ' '
 
 .PHONY: all clean dependents

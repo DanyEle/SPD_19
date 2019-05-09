@@ -1,23 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <section name="Workbench">
-	<section name="org.eclipse.debug.ui.STRING_VARIABLE_SELECTION_DIALOG_SECTION">
-		<item value="450" key="DIALOG_WIDTH"/>
-		<item value="1|Ubuntu|11.0|0|GTK|1|" key="DIALOG_FONT_NAME"/>
-		<item value="661" key="DIALOG_HEIGHT"/>
-		<item value="175" key="DIALOG_X_ORIGIN"/>
-		<item value="-101" key="DIALOG_Y_ORIGIN"/>
+	<section name="org.eclipse.debug.ui.SELECT_LAUNCH_SHORTCUT_DIALOG">
+		<item key="DIALOG_WIDTH" value="293"/>
+		<item key="DIALOG_HEIGHT" value="439"/>
+		<item key="DIALOG_FONT_NAME" value="1|Ubuntu|11.0|0|GTK|1|"/>
 	</section>
 	<section name="org.eclipse.debug.ui.LAUNCH_CONFIGURATIONS_DIALOG_SECTION">
-		<item value="906" key="DIALOG_WIDTH"/>
-		<item value="1|Ubuntu|11.0|0|GTK|1|" key="DIALOG_FONT_NAME"/>
-		<item value=", org.eclipse.cdt.launch.applicationLaunchType, " key="org.eclipse.debug.ui.EXPANDED_NODES"/>
-		<item value="684" key="org.eclipse.debug.ui.DIALOG_SASH_WEIGHTS_2"/>
-		<item value="702" key="DIALOG_HEIGHT"/>
-		<item value="315" key="org.eclipse.debug.ui.DIALOG_SASH_WEIGHTS_1"/>
+		<item key="org.eclipse.debug.ui.DIALOG_SASH_WEIGHTS_1" value="324"/>
+		<item key="org.eclipse.debug.ui.DIALOG_SASH_WEIGHTS_2" value="675"/>
+		<item key="org.eclipse.debug.ui.EXPANDED_NODES" value=", org.eclipse.cdt.launch.applicationLaunchType, "/>
+		<item key="DIALOG_WIDTH" value="918"/>
+		<item key="DIALOG_HEIGHT" value="702"/>
+		<item key="DIALOG_FONT_NAME" value="1|Ubuntu|11.0|0|GTK|1|"/>
 	</section>
-	<section name="org.eclipse.debug.ui.SELECT_LAUNCH_SHORTCUT_DIALOG">
-		<item value="293" key="DIALOG_WIDTH"/>
-		<item value="1|Ubuntu|11.0|0|GTK|1|" key="DIALOG_FONT_NAME"/>
-		<item value="439" key="DIALOG_HEIGHT"/>
+	<section name="org.eclipse.debug.ui.SCOPED_SAVE_SELECTION_DIALOG">
+		<item key="DIALOG_WIDTH" value="322"/>
+		<item key="DIALOG_HEIGHT" value="387"/>
+		<item key="DIALOG_FONT_NAME" value="1|Ubuntu|11.0|0|GTK|1|"/>
 	</section>
 </section>

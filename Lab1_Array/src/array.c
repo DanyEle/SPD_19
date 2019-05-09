@@ -5,6 +5,8 @@
 #include <stdlib.h>
 #include <string.h>
 
+
+//Ping. Send an array from a process to another process.
 #define N               10        /* number of rows and columns in matrix */
 
 //forward declarations

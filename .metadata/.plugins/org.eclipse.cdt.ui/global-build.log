@@ -1,26 +1,3 @@
-16:41:07 **** Incremental Build of configuration Debug for project Lab1_Farm_K_Means ****
+10:31:49 **** Incremental Build of configuration Debug for project Lab2_TBB_Simple_Mandelbrot ****
 make all 
-Building target: Lab1_Farm_K_Means
-Invoking: GCC C Linker
-mpicc  -o "Lab1_Farm_K_Means"  ./src/farm_skeleton.o ./src/kmeans.o ./src/util.o   
-./src/kmeans.o:/home/daniele/eclipse-workspace/Lab1_Farm_K_Means/Debug/../src/kmeans.c:26: multiple definition of `n_cen'
-makefile:30: recipe for target 'Lab1_Farm_K_Means' failed
-./src/farm_skeleton.o:/home/daniele/eclipse-workspace/Lab1_Farm_K_Means/Debug/../src/kmeans.c:26: first defined here
-./src/kmeans.o: In function `k_means':
-/home/daniele/eclipse-workspace/Lab1_Farm_K_Means/Debug/../src/kmeans.c:34: multiple definition of `k_means'
-./src/farm_skeleton.o:/home/daniele/eclipse-workspace/Lab1_Farm_K_Means/Debug/../src/kmeans.c:34: first defined here
-./src/kmeans.o: In function `printcentroids':
-/home/daniele/eclipse-workspace/Lab1_Farm_K_Means/Debug/../src/kmeans.c:226: multiple definition of `printcentroids'
-./src/farm_skeleton.o:/home/daniele/eclipse-workspace/Lab1_Farm_K_Means/Debug/../src/kmeans.c:226: first defined here
-./src/kmeans.o: In function `computemindist':
-/home/daniele/eclipse-workspace/Lab1_Farm_K_Means/Debug/../src/kmeans.c:204: multiple definition of `computemindist'
-./src/farm_skeleton.o:/home/daniele/eclipse-workspace/Lab1_Farm_K_Means/Debug/../src/kmeans.c:204: first defined here
-./src/kmeans.o: In function `init_data_communication':
-/home/daniele/eclipse-workspace/Lab1_Farm_K_Means/Debug/../src/kmeans.c:155: multiple definition of `init_data_communication'
-./src/farm_skeleton.o:/home/daniele/eclipse-workspace/Lab1_Farm_K_Means/Debug/../src/kmeans.c:155: first defined here
-./src/kmeans.o: In function `fprintcentroids':
-/home/daniele/eclipse-workspace/Lab1_Farm_K_Means/Debug/../src/kmeans.c:232: multiple definition of `fprintcentroids'
-./src/farm_skeleton.o:/home/daniele/eclipse-workspace/Lab1_Farm_K_Means/Debug/../src/kmeans.c:232: first defined here
-collect2: error: ld returned 1 exit status
-make: *** [Lab1_Farm_K_Means] Error 1
-"make all" terminated with exit code 2. Build might be incomplete.
+make: Nothing to be done for 'all'.

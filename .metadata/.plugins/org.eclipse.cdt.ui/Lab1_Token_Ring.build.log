@@ -1,23 +1,6 @@
-17:05:14 **** Incremental Build of configuration Debug for project Lab1_Token_Ring ****
+14:23:58 **** Build of configuration Debug for project Lab1_Token_Ring ****
 make all 
-Building file: ../src/token_ring.c
-Invoking: GCC C Compiler
-mpicc -I/usr/include/mpi -O0 -g3 -Wall -c -fmessage-length=0 -MMD -MP -MF"src/token_ring.d" -MT"src/token_ring.o" -o "src/token_ring.o" "../src/token_ring.c"
-../src/token_ring.c: In function ‘main’:
-../src/token_ring.c:26:9: warning: variable ‘mpi_error_code’ set but not used [-Wunused-but-set-variable]
-     int mpi_error_code = MPI_Comm_size(MPI_COMM_WORLD, &number_processes);
-         ^~~~~~~~~~~~~~
-../src/token_ring.c: In function ‘handle_communication’:
-../src/token_ring.c:47:6: warning: variable ‘mpi_error_code’ set but not used [-Wunused-but-set-variable]
-  int mpi_error_code;
-      ^~~~~~~~~~~~~~
-Finished building: ../src/token_ring.c
- 
-Building target: Lab1_Token_Ring
-Invoking: GCC C Linker
-mpicc  -o "Lab1_Token_Ring"  ./src/token_ring.o   
-Finished building target: Lab1_Token_Ring
- 
+make: Nothing to be done for 'all'.
 
-17:05:15 Build Finished. 0 errors, 2 warnings. (took 178ms)
+14:23:58 Build Finished. 0 errors, 0 warnings. (took 59ms)
 

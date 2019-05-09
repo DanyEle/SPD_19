@@ -1,9 +1,13 @@
 LaunchTargetManager/org.eclipse.launchbar.core.launchTargetType.local,Local/arch=x86_64
 LaunchTargetManager/org.eclipse.launchbar.core.launchTargetType.local,Local/name=Local
 LaunchTargetManager/org.eclipse.launchbar.core.launchTargetType.local,Local/os=linux
-configDescList=org.eclipse.launchbar.core.descriptorType.default\:Hello World,org.eclipse.launchbar.core.descriptorType.default\:Lab1_Token_Ring Debug,org.eclipse.launchbar.core.descriptorType.default\:Lab1_Matrix Debug
+configDescList=org.eclipse.launchbar.core.descriptorType.default\:Test_Project,org.eclipse.launchbar.core.descriptorType.default\:Hello World,org.eclipse.launchbar.core.descriptorType.default\:Lab1_Token_Ring Debug,org.eclipse.launchbar.core.descriptorType.default\:Lab2_TBB_Parallel_For_1D Debug,org.eclipse.launchbar.core.descriptorType.default\:Lab2_TBB_Hello_World (1),org.eclipse.launchbar.core.descriptorType.default\:Lab2_TBB,org.eclipse.launchbar.core.descriptorType.default\:Lab2_TBB_Hello_World,org.eclipse.launchbar.core.descriptorType.default\:Lab2_TBB_Parallel_For_Matrix Debug
 eclipse.preferences.version=1
 org.eclipse.launchbar.core.descriptorType.default\:Hello\ World/activeLaunchMode=run
 org.eclipse.launchbar.core.descriptorType.default\:Hello\ World/activeLaunchTarget=org.eclipse.launchbar.core.launchTargetType.local\:Local
 org.eclipse.launchbar.core.descriptorType.default\:Lab1_Token_Ring\ Debug/activeLaunchMode=run
 org.eclipse.launchbar.core.descriptorType.default\:Lab1_Token_Ring\ Debug/activeLaunchTarget=org.eclipse.launchbar.core.launchTargetType.local\:Local
+org.eclipse.launchbar.core.descriptorType.default\:Lab2_TBB_Hello_World/activeLaunchMode=run
+org.eclipse.launchbar.core.descriptorType.default\:Lab2_TBB_Hello_World/activeLaunchTarget=org.eclipse.launchbar.core.launchTargetType.local\:Local
+org.eclipse.launchbar.core.descriptorType.default\:Test_Project/activeLaunchMode=run
+org.eclipse.launchbar.core.descriptorType.default\:Test_Project/activeLaunchTarget=org.eclipse.launchbar.core.launchTargetType.local\:Local

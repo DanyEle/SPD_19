@@ -27,7 +27,6 @@ static int maxIter = DEFAULT_ITERATIONS;
 
 int saveimg(int dimx, int dimy, const char * filename, int * matrix, int max_value);
 
-
 //function computing the mandelbrot in asingle point
 //returns the number of iteration until divergence
 int mand_compute( double cx, double cy)
@@ -55,20 +54,31 @@ int main () {
 	// initialization of matrix
 	int a [AMOUNT_ROWS][AMOUNT_COLUMNS] = {};
 
-		for(int i = 0; i < AMOUNT_ROWS; i++)
+	for(int i = 0; i < AMOUNT_ROWS; i++)
+	{
+		for(int j = 0; j < AMOUNT_COLUMNS; j++)
 		{
-			for(int j = 0; j < AMOUNT_COLUMNS; j++)
-			{
-				a[i][j] = i;
-			}
+			a[i][j] = i;
 		}
+	}
 
+	int * b [AMOUNT_ROWS];
+
+	//initialize b with dummy values
+	for(int i = 0; i < AMOUNT_ROWS; i++)
+	{
+		for(int j = 0; j < AMOUNT_COLUMNS; j++)
+		{
+			b[i][j] = i;
+			printf("%d \n", b[i][j]);
+		}
+	}
 
 	//loop over the matrix and compute the amount of iterations it takes
-	tbb::parallel_for(0, AMOUNT_ROWS, [a](int i){
-				tbb::parallel_for(0, AMOUNT_COLUMNS, [i, a](int j){
+	//for the mandelbrot function to converge
+	tbb::parallel_for(0, AMOUNT_ROWS, [a, b](int i){
+				tbb::parallel_for(0, AMOUNT_COLUMNS, [i, a, b](int j){
 
-					//double cur_value = (double) a[i][j];
 					//rows = y axis
 					//columns = x axis
 					double y = (double)i;
@@ -79,7 +89,7 @@ int main () {
 
 					printf("%d \n", iters);
 
-					//b[i][j] = iters;
+					b[i][j] = iters;
 
 				});
 			});
@@ -88,12 +98,11 @@ int main () {
 		{
 			for(int j = 0; j < AMOUNT_COLUMNS; j++)
 			{
-				printf("%d \n ", a[i][j]);
+				printf("%d \n ", b[i][j]);
 			}
 		}
-
-
-
+		//let's try printing the final matrix, shall we?
+		//saveimg(AMOUNT_COLUMNS, AMOUNT_ROWS, "mymatrix.ppm", *b, AMOUNT_ROWS);
 
 }
 
