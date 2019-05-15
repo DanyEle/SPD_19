@@ -3,22 +3,28 @@
 #include <algorithm>
 #include "tbb/parallel_for.h"
 #include "tbb/blocked_range.h"
+#include "tbb/task_scheduler_init.h"
+#include "tbb/task_arena.h"
+#include "tbb/task_group.h"
+
+
+
 
 #include "Save_Array_as_PPM.c"
 
 #define AMOUNT_ROWS 1000
 #define AMOUNT_COLUMNS 1000
 
-
 using namespace tbb;
 using namespace std;
 
 // square area, lower left angle and size
-#define DEFAULT_X -2.0
+#define DEFAULT_X -2.0 //was 2
 #define DEFAULT_Y -2.0
 #define DEFAULT_SIZE 4.0
-#define DEFAULT_PIXELS 10
-#define DEFAULT_ITERATIONS 10000
+//#define DEFAULT_PIXELS 10
+#define DEFAULT_ITERATIONS 100000
+
 
 // we assume a point diverges if its squared modulus exceeds this value
 #define MAX_SMODULUS 4
@@ -52,31 +58,40 @@ int mand_compute( double cx, double cy)
 int main () {
 	// initialization of matrix
 	int a [AMOUNT_ROWS][AMOUNT_COLUMNS] = {{0}};
-
 	//int * b [AMOUNT_ROWS];
 
 	int(*b) [AMOUNT_ROWS];
-
 	b = a;
+	tbb::task_arena limited(1);
 
-	//loop over the matrix and compute the amount of iterations it takes
-	//for the mandelbrot function to converge
-	tbb::parallel_for(0, AMOUNT_ROWS, [b, &a](int row){
-				tbb::parallel_for(0, AMOUNT_COLUMNS, [b, &a, row](int col){
-					//rows = y axis
-					//columns = x axis
-					//compute the complex number
-					double c_re = (col - AMOUNT_COLUMNS/2.0)*4.0/AMOUNT_COLUMNS;
-					double c_im = (row - AMOUNT_ROWS/2.0)*4.0/AMOUNT_ROWS;
+	limited.execute([b, &a]{ // Use at most 2 threads for this job.
+	tbb::task_group tg;
 
-					//let's compute mandelbrot based on it.
-					int iters = mand_compute(c_re, c_im) ;
+	  tg.run([b, &a]{ // run in task group
+			  //loop over the matrix and compute the amount of iterations it takes
+			  	//for the mandelbrot function to converge
+			  	tbb::parallel_for(0, AMOUNT_ROWS, [b, &a](int row){
+			  				tbb::parallel_for(0, AMOUNT_COLUMNS, [b, &a, row](int col){
+			  				    //tbb::task_scheduler_init init(1);
+			  					//rows = y axis
+			  					//columns = x axis
+			  					//compute the complex number
+			  					double c_re = (col - AMOUNT_COLUMNS/DEFAULT_X)*DEFAULT_SIZE/AMOUNT_COLUMNS;
+			  					double c_im = (row - AMOUNT_ROWS/DEFAULT_X)*DEFAULT_SIZE/AMOUNT_ROWS;
 
-					//printf("%d \n", iters);
+			  					//let's compute mandelbrot based on it.
+			  					int iters = mand_compute(c_re, c_im) ;
 
-					b[row][col] = iters;
-				});
-			});
+			  					//printf("%d \n", iters);
+
+			  					b[row][col] = iters;
+			  				});
+			  			});
+	  	  	  	  });
+	  tg.wait();
+	});
+
+    //int n = tbb::task_scheduler_init::default_num_threads();
 
 		for(int i = 0; i < AMOUNT_ROWS; i++)
 		{
@@ -86,7 +101,6 @@ int main () {
 			}
 			printf("\n");
 		}
-
 		//let's try printing the final matrix, shall we?
 
 	    const int MaxColorComponentValue = 255;
