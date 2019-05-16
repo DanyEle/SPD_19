@@ -1,4 +1,4 @@
-18:04:12 **** Incremental Build of configuration Debug for project Lab2_TBB_Mandelbrot_Load ****
+16:35:36 **** Incremental Build of configuration Debug for project Lab2_TBB_Mandelbrot_Load ****
 make all 
 Building file: ../src/Load_Mandelbrot.cpp
 Invoking: GCC C++ Compiler
@@ -10,3 +10,6 @@ Invoking: GCC C++ Linker
 g++  -o "Lab2_TBB_Mandelbrot_Load"  ./src/Load_Mandelbrot.o ./src/Save_Array_as_PPM.o   -ltbb
 Finished building target: Lab2_TBB_Mandelbrot_Load
  
+16:35:38 **** Incremental Build of configuration Debug for project Lab2_TBB_Mandelbrot_Load ****
+make all 
+make: Nothing to be done for 'all'.

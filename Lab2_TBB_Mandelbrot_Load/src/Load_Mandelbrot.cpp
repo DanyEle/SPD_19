@@ -12,19 +12,20 @@
 
 #include "Save_Array_as_PPM.c"
 
-#define AMOUNT_ROWS 1000
-#define AMOUNT_COLUMNS 1000
+#define AMOUNT_ROWS 1200
+#define AMOUNT_COLUMNS 1200
 
 using namespace tbb;
 using namespace std;
 
 // square area, lower left angle and size
-#define DEFAULT_X -2.0 //was 2
-#define DEFAULT_Y -2.0
+#define DEFAULT_X 2.0
+#define DEFAULT_Y 2.0
 #define DEFAULT_SIZE 4.0
 //#define DEFAULT_PIXELS 10
-#define DEFAULT_ITERATIONS 100000
+#define DEFAULT_ITERATIONS 10000
 
+#define AMOUNT_THREADS 16
 
 // we assume a point diverges if its squared modulus exceeds this value
 #define MAX_SMODULUS 4
@@ -62,9 +63,9 @@ int main () {
 
 	int(*b) [AMOUNT_ROWS];
 	b = a;
-	tbb::task_arena limited(1);
+	tbb::task_arena limited(AMOUNT_THREADS);
 
-	limited.execute([b, &a]{ // Use at most 2 threads for this job.
+	limited.execute([b, &a]{
 	tbb::task_group tg;
 
 	  tg.run([b, &a]{ // run in task group
@@ -76,8 +77,8 @@ int main () {
 			  					//rows = y axis
 			  					//columns = x axis
 			  					//compute the complex number
-			  					double c_re = (col - AMOUNT_COLUMNS/DEFAULT_X)*DEFAULT_SIZE/AMOUNT_COLUMNS;
-			  					double c_im = (row - AMOUNT_ROWS/DEFAULT_X)*DEFAULT_SIZE/AMOUNT_ROWS;
+			  					double c_re = (col - AMOUNT_COLUMNS/DEFAULT_X)*4.0/AMOUNT_COLUMNS;
+			  					double c_im = (row - AMOUNT_ROWS/DEFAULT_Y)*4.0/AMOUNT_ROWS;
 
 			  					//let's compute mandelbrot based on it.
 			  					int iters = mand_compute(c_re, c_im) ;
